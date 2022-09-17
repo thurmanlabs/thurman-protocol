@@ -61,7 +61,7 @@ contract Pool {
 	function deposit(
 		address underlyingAsset
 	) external payable {
-		DataTypes.Reserve storage reserve = _reserves[underlyingAsset];
+		DataTypes.Reserve memory reserve = _reserves[underlyingAsset];
 		if (msg.value == 0) {
 			revert INVALID_AMOUNT();
 		}
@@ -74,12 +74,12 @@ contract Pool {
 		address underlyingAsset,
 		uint256 amount
 	) external {
-		DataTypes.Reserve storage reserve = _reserves[underlyingAsset];
+		DataTypes.Reserve memory reserve = _reserves[underlyingAsset];
 		if (amount == 0) {
 			revert INVALID_AMOUNT();
 		}
 		uint256 userBalance = IThToken(reserve.thTokenAddress).balanceOf(msg.sender);
-		if (amount <= userBalance) {
+		if (amount >= userBalance) {
 			revert NOT_ENOUGH_IN_USER_BALANCE();
 		}
 		IThToken(reserve.thTokenAddress).burn(msg.sender, amount);

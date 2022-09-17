@@ -1,5 +1,5 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { parseEther } from "ethers/lib/utils";
+import { parseEther, formatEther } from "ethers/lib/utils";
 import { assert, expect } from "chai";
 import { network, deployments, ethers } from "hardhat";
 
@@ -22,10 +22,10 @@ describe("Pool", function() {
     thToken = await ThToken.deploy("WETH_thToken", "WETH_THT");
     await thToken.initialize(weth.address);
     console.log(`thToken address: `, thToken.address);
-    await pool.initReserve(weth.address, thToken.address);
-    let reserve: DataTypes.ReserveStruct = await pool.getReserve(weth.address);
-    // console.log(`reserve init boolean val: ${bool}`);
-    console.log(`reserve: ${reserve}`);
+    // await pool.initReserve(weth.address, thToken.address);
+    // let reserve: DataTypes.ReserveStruct = await pool.getReserve(weth.address);
+    // // console.log(`reserve init boolean val: ${bool}`);
+    // console.log(`reserve: ${reserve}`);
     await weth.deposit({ value: parseEther("0.2") });
     console.log(
       `accounts[0] weth balance: `,
@@ -49,8 +49,24 @@ describe("Pool", function() {
     });
   });
 
+  describe("initialize reserve", () => {
+    it("initialized a reserve correctly", async () => {
+      await pool.initReserve(weth.address, thToken.address);
+      let reserve: DataTypes.ReserveStruct = await pool.getReserve(
+        weth.address
+      );
+      expect(reserve.thTokenAddress).to.equal(thToken.address);
+    });
+  });
+
   describe("deposit", () => {
     it("should mint thTokens upon deposit", async () => {
+      await pool.initReserve(weth.address, thToken.address);
+      console.log(
+        `WETH balance of accounts[0] before deposit: `,
+        await weth.balanceOf(accounts[0].address)
+      );
+      await weth.approve(pool.address, parseEther("0.5"));
       await pool.deposit(weth.address, { value: parseEther("0.2") });
       expect(await thToken.balanceOf(accounts[0].address)).to.equal(
         parseEther("0.2")
@@ -60,13 +76,17 @@ describe("Pool", function() {
 
   describe("withdraw", () => {
     it("should burn thTokens upon withdrawal", async () => {
-      await pool.deposit(weth.address, parseEther("0.2"), {
-        value: parseEther("0.02"),
-      });
+      await pool.initReserve(weth.address, thToken.address);
+      let reserve: DataTypes.ReserveStruct = await pool.getReserve(
+        weth.address
+      );
+      await weth.approve(pool.address, parseEther("0.5"));
+      await pool.deposit(weth.address, { value: parseEther("0.2") });
       const balanceOf = await thToken.balanceOf(accounts[0].address);
-      await pool.withdraw(accounts[0].address);
+      console.log(`accounts[0] thToken balanceOf: `, balanceOf);
+      await pool.withdraw(weth.address, parseEther("0.01"));
       const endingBalanceOf = await thToken.balanceOf(accounts[0].address);
-      expect(endingBalanceOf).to.equal(parseEther("0.0"));
+      expect(endingBalanceOf).to.equal(parseEther("0.19"));
     });
   });
 });
