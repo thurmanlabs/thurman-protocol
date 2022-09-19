@@ -1,8 +1,10 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { parseEther } from "ethers/lib/utils";
+import { verify } from "../utils/verify";
 
 const WETH_ADDRESS = "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6";
+const developmentChains = ["hardhat", "localhost"];
 
 const deployPool: DeployFunction = async function(
   hre: HardhatRuntimeEnvironment
@@ -10,6 +12,7 @@ const deployPool: DeployFunction = async function(
   const { getNamedAccounts, deployments, network } = hre;
   const { deploy, log } = deployments;
   const { deployer } = await getNamedAccounts();
+  console.log(`deployer info: `, deployer);
   const chainId: number = network.config.chainId!;
   console.log(`chainId: `, chainId);
   let wethAddress: string;
@@ -31,20 +34,26 @@ const deployPool: DeployFunction = async function(
 
   const Pool = await ethers.getContractFactory("Pool");
   let pool: Pool = await Pool.deploy();
-  await pool.deployed();
+  await pool.deployTransaction.wait(6);
   const ThToken = await ethers.getContractFactory("ThToken");
   let thToken: ThToken = await ThToken.deploy("WETH_thToken", "WETH_THT");
-  await thToken.deployed();
+  await thToken.deployTransaction.wait(6);
   await thToken.initialize(wethAddress);
   console.log(`thToken address: `, thToken.address);
   await pool.initReserve(wethAddress, thToken.address);
   let reserve: DataTypes.ReserveStruct = await pool.getReserve(wethAddress);
   console.log(`weth reserve: ${reserve}`);
-  await weth.deposit({ value: parseEther("0.2") });
-  console.log(
-    `accounts[0] weth balance: `,
-    await weth.balanceOf(deployer.address)
-  );
+  await weth.deposit({ value: parseEther("0.01") });
+  console.log(`accounts[0] weth balance: `, await weth.balanceOf(deployer));
+
+  log("----------------------------------------------");
+  if (
+    !developmentChains.includes(network.name) &&
+    process.env.ETHERSCAN_API_KEY
+  ) {
+    await verify(pool.address, []);
+    await verify(thToken.address, ["WETH_thToken", "WETH_THT"]);
+  }
 };
 
 export default deployPool;
