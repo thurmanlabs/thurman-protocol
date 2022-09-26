@@ -4,18 +4,13 @@ pragma solidity ^0.8.8;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ThToken} from "./thToken.sol";
 import {IThToken} from "./IThToken.sol";
+import {DataTypes} from "./DataTypes.sol";
+import {PoolStorage} from "./PoolStorage.sol";
 
 error INVALID_AMOUNT();
 error NOT_ENOUGH_IN_USER_BALANCE();
 error RESERVE_ALREADY_INITIALIZED();
 error RESERVE_ALREADY_ADDED();
-
-library DataTypes {
-	struct Reserve {
-		uint16 id;
-		address thTokenAddress;
-	}
-}
 
 library PoolLogic {
 	function initReserve(
@@ -38,14 +33,7 @@ library PoolLogic {
 	}
 }
 
-
-
-contract Pool {
-
-	// maps underlying asset address to reserve struct
-	mapping(address => DataTypes.Reserve) internal _reserves;
-	// addresses of underlying assets
-	address[] internal _reservesList;
+contract Pool is PoolStorage {
 
 	event Deposit(address indexed reserve, address user, uint256 amount);
 	event Withdraw(address indexed reserve, address user, uint256 amount);
