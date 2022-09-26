@@ -67,7 +67,7 @@ describe("Pool", function() {
         await weth.balanceOf(accounts[0].address)
       );
       await weth.approve(pool.address, parseEther("0.5"));
-      await pool.deposit(weth.address, { value: parseEther("0.2") });
+      await pool.deposit(weth.address, parseEther("0.2"));
       expect(await thToken.balanceOf(accounts[0].address)).to.equal(
         parseEther("0.2")
       );
@@ -81,7 +81,7 @@ describe("Pool", function() {
         weth.address
       );
       await weth.approve(pool.address, parseEther("0.5"));
-      await pool.deposit(weth.address, { value: parseEther("0.2") });
+      await pool.deposit(weth.address, parseEther("0.2"));
       const balanceOf = await thToken.balanceOf(accounts[0].address);
       console.log(`accounts[0] thToken balanceOf: `, balanceOf);
       await pool.withdraw(weth.address, parseEther("0.01"));

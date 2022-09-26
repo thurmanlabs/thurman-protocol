@@ -75,11 +75,14 @@ function App() {
       signer
     );
     await weth.approve(pool.address, ethers.utils.parseEther("0.005"));
-    const tx = await pool.deposit(WETH_ADDRESS, {
-      value: ethers.utils.parseEther("0.001"),
-      gasPrice: 6000000,
-      gasLimit: 30000000,
-    });
+    const tx = await pool.deposit(
+      WETH_ADDRESS,
+      ethers.utils.parseEther("0.001"),
+      {
+        gasPrice: 6000000,
+        gasLimit: 30000000,
+      }
+    );
     console.log(tx);
     const tr = await tx.wait(1);
     console.log(tr);

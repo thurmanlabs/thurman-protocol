@@ -59,15 +59,16 @@ contract Pool {
 	}
 
 	function deposit(
-		address underlyingAsset
+		address underlyingAsset,
+		uint256 amount
 	) external payable {
 		DataTypes.Reserve memory reserve = _reserves[underlyingAsset];
-		if (msg.value == 0) {
+		if (amount == 0) {
 			revert INVALID_AMOUNT();
 		}
-		IERC20(underlyingAsset).transferFrom(msg.sender, reserve.thTokenAddress, msg.value);
-		IThToken(reserve.thTokenAddress).mint(msg.sender, msg.value);
-		emit Deposit(underlyingAsset, msg.sender, msg.value);
+		IERC20(underlyingAsset).transferFrom(msg.sender, reserve.thTokenAddress, amount);
+		IThToken(reserve.thTokenAddress).mint(msg.sender, amount);
+		emit Deposit(underlyingAsset, msg.sender, amount);
 	}
 	
 	function withdraw(
