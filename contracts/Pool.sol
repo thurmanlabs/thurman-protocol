@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.8;
 
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {DataTypes} from "./libraries/DataTypes.sol";
 import {PoolLogic} from "./libraries/PoolLogic.sol";
 import {ReserveLogic} from "./libraries/ReserveLogic.sol";
@@ -13,11 +14,15 @@ import {PoolStorage} from "./PoolStorage.sol";
 error INVALID_AMOUNT();
 error NOT_ENOUGH_IN_USER_BALANCE();
 
-contract Pool is PoolStorage {
+contract Pool is Initializable, PoolStorage {
 	using ReserveLogic for DataTypes.Reserve;
 
 	event Deposit(address indexed reserve, address user, uint256 amount);
 	event Withdraw(address indexed reserve, address user, uint256 amount);
+
+	function initialize() external initializer {
+		_repayPeriod = 30 days;
+	}
 
 	function initReserve(
 		address underlyingAsset,
@@ -35,7 +40,7 @@ contract Pool is PoolStorage {
 		if (amount == 0) {
 			revert INVALID_AMOUNT();
 		}
-		IERC20(underlyingAsset).transferFrom(msg.sender, reserve.thTokenAddress, amount);
+		IERC20Upgradeable(underlyingAsset).transferFrom(msg.sender, reserve.thTokenAddress, amount);
 		IThToken(reserve.thTokenAddress).mint(msg.sender, amount);
 		emit Deposit(underlyingAsset, msg.sender, amount);
 	}

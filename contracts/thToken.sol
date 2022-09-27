@@ -1,20 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.8;
 
-import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {ERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
+import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {IThToken} from "./IThToken.sol";
 
-contract ThToken is ERC20, IThToken {
+contract ThToken is ERC20Upgradeable, IThToken {
 	address internal _underlyingAsset;
 
 	event Initialized(address indexed underlyingAsset);
 
-	constructor(string memory name, string memory symbol) ERC20(name, symbol){}
-
 	function initialize(
+		string memory name,
+		string memory symbol,
 		address underlyingAsset
-		) external {
+		) external initializer {
+		__ERC20_init(name, symbol);
 		_underlyingAsset = underlyingAsset;
 		emit Initialized(underlyingAsset);
 	}
@@ -26,7 +27,7 @@ contract ThToken is ERC20, IThToken {
 	function burn(address _account, uint256 _amount) external {
 		_burn(_account, _amount);
 		if (_account != address(this)) {
-			IERC20(_underlyingAsset).transfer(_account, _amount);
+			IERC20Upgradeable(_underlyingAsset).transfer(_account, _amount);
 		}
 	}
 

@@ -2,6 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { parseEther } from "ethers/lib/utils";
 import { verify } from "../utils/verify";
+import { upgrades } from "hardhat";
 
 const WETH_ADDRESS = "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6";
 const developmentChains = ["hardhat", "localhost"];
@@ -33,12 +34,15 @@ const deployPool: DeployFunction = async function(
   log("Deploying Pool...");
 
   const Pool = await ethers.getContractFactory("Pool");
-  let pool: Pool = await Pool.deploy();
+  let pool: Pool = await upgrades.deployProxy(Pool, []);
   await pool.deployTransaction.wait(6);
   const ThToken = await ethers.getContractFactory("ThToken");
-  let thToken: ThToken = await ThToken.deploy("WETH_thToken", "WETH_THT");
+  let thToken: ThToken = await upgrades.deployProxy(ThToken, [
+    "WETH_thToken",
+    "WETH_THT",
+    weth.address,
+  ]);
   await thToken.deployTransaction.wait(6);
-  await thToken.initialize(wethAddress);
   console.log(`thToken address: `, thToken.address);
   await pool.initReserve(wethAddress, thToken.address);
   let reserve: DataTypes.ReserveStruct = await pool.getReserve(wethAddress);
@@ -52,7 +56,7 @@ const deployPool: DeployFunction = async function(
     process.env.ETHERSCAN_API_KEY
   ) {
     await verify(pool.address, []);
-    await verify(thToken.address, ["WETH_thToken", "WETH_THT"]);
+    await verify(thToken.address, []);
   }
 };
 

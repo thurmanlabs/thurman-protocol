@@ -8,4 +8,5 @@ contract PoolStorage {
 	mapping(address => DataTypes.Reserve) internal _reserves;
 	// addresses of underlying assets
 	address[] internal _reservesList;
+	uint _repayPeriod;
 }

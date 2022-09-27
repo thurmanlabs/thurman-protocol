@@ -1,6 +1,7 @@
 import "@typechain/hardhat";
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
+import "@openzeppelin/hardhat-upgrades";
 import "@nomiclabs/hardhat-waffle";
 import "hardhat-deploy";
 import "dotenv/config";
@@ -21,7 +22,7 @@ const config: HardhatUserConfig = {
       url: GOERLI_RPC_URL,
       accounts: [PRIVATE_KEY!],
       chainId: 5,
-      gas: 2100000,
+      gas: 21000000,
       gasPrice: 8000000000,
     },
   },

@@ -1,7 +1,7 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { parseEther, formatEther } from "ethers/lib/utils";
 import { assert, expect } from "chai";
-import { network, deployments, ethers } from "hardhat";
+import { network, deployments, ethers, upgrades } from "hardhat";
 
 const WETH_ADDRESS = "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6";
 
@@ -17,10 +17,17 @@ describe("Pool", function() {
     weth = await Weth.deploy();
     console.log(`weth address: ${weth.address}`);
     const Pool = await ethers.getContractFactory("Pool");
-    pool = await Pool.deploy();
+    pool = await upgrades.deployProxy(Pool, []);
+    await pool.deployed();
     const ThToken = await ethers.getContractFactory("ThToken");
-    thToken = await ThToken.deploy("WETH_thToken", "WETH_THT");
-    await thToken.initialize(weth.address);
+    thToken = await upgrades.deployProxy(ThToken, [
+      "WETH_thToken",
+      "WETH_THT",
+      weth.address,
+    ]);
+    await thToken.deployed();
+    // thToken = await ThToken.deploy("WETH_thToken", "WETH_THT");
+    // await thToken.initialize(weth.address);
     console.log(`thToken address: `, thToken.address);
     // await pool.initReserve(weth.address, thToken.address);
     // let reserve: DataTypes.ReserveStruct = await pool.getReserve(weth.address);
@@ -33,21 +40,23 @@ describe("Pool", function() {
     );
   });
 
-  describe("constructor", () => {
-    it("constructs the token correctly", async () => {
+  describe("thToken initializer", () => {
+    it("initializes the token correctly", async () => {
       const name = await thToken.name();
       const symbol = await thToken.symbol();
+      const underlyingAddress = await thToken.getUnderlyingAsset();
       expect(name).to.equal("WETH_thToken");
       expect(symbol).to.equal("WETH_THT");
+      expect(underlyingAddress).to.equal(weth.address);
     });
   });
 
-  describe("initialize", () => {
-    it("initializes underlying asset address correctly", async () => {
-      await thToken.initialize(weth.address);
-      expect(await thToken.getUnderlyingAsset()).to.equal(weth.address);
-    });
-  });
+  // describe("initialize", () => {
+  //   it("initializes underlying asset address correctly", async () => {
+  //     await thToken.initialize(weth.address);
+  //     expect(await thToken.getUnderlyingAsset()).to.equal(weth.address);
+  //   });
+  // });
 
   describe("initialize reserve", () => {
     it("initialized a reserve correctly", async () => {
