@@ -21,6 +21,7 @@ describe("Pool", function() {
     await pool.deployed();
     const ThToken = await ethers.getContractFactory("ThToken");
     thToken = await upgrades.deployProxy(ThToken, [
+      pool.address,
       "WETH_thToken",
       "WETH_THT",
       weth.address,
@@ -51,13 +52,6 @@ describe("Pool", function() {
     });
   });
 
-  // describe("initialize", () => {
-  //   it("initializes underlying asset address correctly", async () => {
-  //     await thToken.initialize(weth.address);
-  //     expect(await thToken.getUnderlyingAsset()).to.equal(weth.address);
-  //   });
-  // });
-
   describe("initialize reserve", () => {
     it("initialized a reserve correctly", async () => {
       await pool.initReserve(weth.address, thToken.address);
@@ -66,9 +60,28 @@ describe("Pool", function() {
       );
       expect(reserve.thTokenAddress).to.equal(thToken.address);
     });
+
+    it("reverts when using another signer besides the deployer", async () => {
+      await pool.connect(accounts[1]);
+      expect(await pool.initReserve(weth.address, thToken.address)).to.be
+        .reverted;
+    });
   });
 
   describe("deposit", () => {
+    it("mint should revert when called by sender besides initialized pool", async () => {
+      await expect(thToken.mint(accounts[0].address, parseEther("0.05"))).to.be
+        .reverted;
+    });
+
+    it("burn should revert when called by sender besides initialized pool", async () => {
+      await pool.initReserve(weth.address, thToken.address);
+      await weth.approve(pool.address, parseEther("0.5"));
+      await pool.deposit(weth.address, parseEther("0.2"));
+      await expect(thToken.burn(accounts[0].address, parseEther("0.05"))).to.be
+        .reverted;
+    });
+
     it("should mint thTokens upon deposit", async () => {
       await pool.initReserve(weth.address, thToken.address);
       console.log(
