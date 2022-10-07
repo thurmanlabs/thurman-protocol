@@ -15,7 +15,6 @@ describe("Pool", function() {
     accounts = await ethers.getSigners();
     const Weth = await ethers.getContractFactory("WETH9");
     weth = await Weth.deploy();
-    console.log(`weth address: ${weth.address}`);
     const Pool = await ethers.getContractFactory("Pool");
     pool = await upgrades.deployProxy(Pool, []);
     await pool.deployed();
@@ -27,18 +26,7 @@ describe("Pool", function() {
       weth.address,
     ]);
     await thToken.deployed();
-    // thToken = await ThToken.deploy("WETH_thToken", "WETH_THT");
-    // await thToken.initialize(weth.address);
-    console.log(`thToken address: `, thToken.address);
-    // await pool.initReserve(weth.address, thToken.address);
-    // let reserve: DataTypes.ReserveStruct = await pool.getReserve(weth.address);
-    // // console.log(`reserve init boolean val: ${bool}`);
-    // console.log(`reserve: ${reserve}`);
     await weth.deposit({ value: parseEther("0.2") });
-    console.log(
-      `accounts[0] weth balance: `,
-      await weth.balanceOf(accounts[0].address)
-    );
   });
 
   describe("thToken initializer", () => {
@@ -61,25 +49,40 @@ describe("Pool", function() {
       expect(reserve.thTokenAddress).to.equal(thToken.address);
     });
 
+    it("reverts when a reserve has already been added", async () => {
+      await pool.initReserve(weth.address, thToken.address);
+      await expect(
+        pool.initReserve(weth.address, thToken.address)
+      ).to.be.revertedWithCustomError(pool, "RESERVE_ALREADY_ADDED");
+    });
+
     it("reverts when using another signer besides the deployer", async () => {
-      await pool.connect(accounts[1]);
-      expect(await pool.initReserve(weth.address, thToken.address)).to.be
-        .reverted;
+      await expect(
+        pool.connect(accounts[1]).initReserve(weth.address, thToken.address)
+      ).to.be.revertedWith("Ownable: caller is not the owner");
     });
   });
 
   describe("deposit", () => {
+    it("should emit deposit event", async () => {
+      await pool.initReserve(weth.address, thToken.address);
+      await weth.approve(pool.address, parseEther("0.5"));
+      await expect(pool.deposit(weth.address, parseEther("0.2")))
+        .to.emit(pool, "Deposit")
+        .withArgs(weth.address, accounts[0].address, parseEther("0.2"));
+    });
+
     it("mint should revert when called by sender besides initialized pool", async () => {
       await expect(thToken.mint(accounts[0].address, parseEther("0.05"))).to.be
         .reverted;
     });
 
-    it("burn should revert when called by sender besides initialized pool", async () => {
+    it("deposit should revert when amount 0 is sent by message sender", async () => {
       await pool.initReserve(weth.address, thToken.address);
       await weth.approve(pool.address, parseEther("0.5"));
-      await pool.deposit(weth.address, parseEther("0.2"));
-      await expect(thToken.burn(accounts[0].address, parseEther("0.05"))).to.be
-        .reverted;
+      await expect(
+        pool.deposit(weth.address, parseEther("0"))
+      ).to.be.revertedWithCustomError(pool, "INVALID_AMOUNT");
     });
 
     it("should mint thTokens upon deposit", async () => {
@@ -97,6 +100,32 @@ describe("Pool", function() {
   });
 
   describe("withdraw", () => {
+    it("should revert when amount 0 is sent by message sender", async () => {
+      await pool.initReserve(weth.address, thToken.address);
+      await weth.approve(pool.address, parseEther("0.5"));
+      await pool.deposit(weth.address, parseEther("0.2"));
+      await expect(
+        pool.withdraw(weth.address, parseEther("0.0"))
+      ).to.be.revertedWithCustomError(pool, "INVALID_AMOUNT");
+    });
+
+    it("should revert when amount sent to withdraw is greater than message sender balance", async () => {
+      await pool.initReserve(weth.address, thToken.address);
+      await weth.approve(pool.address, parseEther("0.5"));
+      await pool.deposit(weth.address, parseEther("0.2"));
+      await expect(
+        pool.withdraw(weth.address, parseEther("0.3"))
+      ).to.be.revertedWithCustomError(pool, "NOT_ENOUGH_IN_USER_BALANCE");
+    });
+
+    it("burn should revert when called by sender besides initialized pool", async () => {
+      await pool.initReserve(weth.address, thToken.address);
+      await weth.approve(pool.address, parseEther("0.5"));
+      await pool.deposit(weth.address, parseEther("0.2"));
+      await expect(thToken.burn(accounts[0].address, parseEther("0.05"))).to.be
+        .reverted;
+    });
+
     it("should burn thTokens upon withdrawal", async () => {
       await pool.initReserve(weth.address, thToken.address);
       let reserve: DataTypes.ReserveStruct = await pool.getReserve(

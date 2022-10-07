@@ -4,6 +4,7 @@ import {DataTypes} from "./DataTypes.sol";
 import {ReserveLogic} from "./ReserveLogic.sol";
 
 error RESERVE_ALREADY_ADDED();
+// error RESERVE_ALREADY_INITIALIZED();
 
 library PoolLogic {
 	using ReserveLogic for DataTypes.Reserve;
@@ -14,11 +15,11 @@ library PoolLogic {
 		address underlyingAsset,
 		address thTokenAddress
 	) internal returns (bool) {
-		reserves[underlyingAsset].init(thTokenAddress);
-		bool alreadyAdded = reserves[underlyingAsset].id != 0; // || reservesList[0] == underlyingAsset;
+		bool alreadyAdded = reserves[underlyingAsset].id != 0 || reserves[underlyingAsset].thTokenAddress != address(0); // || reservesList[0] == underlyingAsset;
 		if (alreadyAdded) {
 			revert RESERVE_ALREADY_ADDED();
 		}
+		reserves[underlyingAsset].init(thTokenAddress);
 		reservesList.push(underlyingAsset);
 		reserves[underlyingAsset].id = uint16(reservesList.length - 1);		
 		return true;

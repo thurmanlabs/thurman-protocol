@@ -16,9 +16,6 @@ import {PoolStorage} from "./PoolStorage.sol";
 contract Pool is Initializable, OwnableUpgradeable, PoolStorage, IPool {
 	using ReserveLogic for DataTypes.Reserve;
 
-	event Deposit(address indexed reserve, address user, uint256 amount);
-	event Withdraw(address indexed reserve, address user, uint256 amount);
-
 	function initialize() external initializer {
 		_repayPeriod = 30 days;
 		__Ownable_init();
