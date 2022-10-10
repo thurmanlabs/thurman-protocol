@@ -1,8 +1,8 @@
 {
   "manifestVersion": "3.2",
   "admin": {
-    "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
-    "txHash": "0xa47e7d7ace43281f0a8ba56e3bbd5c1de65fe0c0e2512d245081a6fe49d754ce"
+    "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+    "txHash": "0x5198e3c3848c033d7b86ef2a3efe56cfae8af982f3c127b1d704eaa0c5568632"
   },
   "proxies": [
     {
@@ -121,11 +121,6 @@
       "kind": "transparent"
     },
     {
-      "address": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
-      "txHash": "0x8dbb9c1fa254a39391c836b3295785d7aa740a2bb3f9fe687b4b09e69b38fe70",
-      "kind": "transparent"
-    },
-    {
       "address": "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
       "txHash": "0x1325ddf720711fa88841a05a752a8d7fc01eeeffe4ad397fbd6721bc7124164b",
       "kind": "transparent"
@@ -234,12 +229,22 @@
       "address": "0x51A1ceB83B83F1985a81C295d1fF28Afef186E02",
       "txHash": "0x6d9b9c8cbc5ca737d2971a2fad7a131816b369c5411d38cdf9e0187a08403da5",
       "kind": "transparent"
+    },
+    {
+      "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+      "txHash": "0xc57c013fd19f735c97328fd3b3571d4a9184c278bc2dfb59925525d58c139f42",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+      "txHash": "0x974bf9b5b903276ec6022947d524fd31e222e3cc9246fa57eab3839d4f9ed9dd",
+      "kind": "transparent"
     }
   ],
   "impls": {
     "30274489fe069d67662fb5e39aba97ae8367742558b5c0c9116dd88e9b06cd25": {
-      "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-      "txHash": "0x291b05ec87230de902acc2e0546582e1338dea34e319f0201625c08ee8398e9d",
+      "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      "txHash": "0x9de4fa7c3138bd0d3f47b500407eda8c8ce142283da67285a396d83ed425d595",
       "layout": {
         "storage": [
           {
@@ -287,7 +292,7 @@
             "label": "_reserves",
             "offset": 0,
             "slot": "101",
-            "type": "t_mapping(t_address,t_struct(Reserve)1790_storage)",
+            "type": "t_mapping(t_address,t_struct(Reserve)1541_storage)",
             "contract": "PoolStorage",
             "src": "contracts/PoolStorage.sol:8"
           },
@@ -329,11 +334,11 @@
             "label": "bool",
             "numberOfBytes": "1"
           },
-          "t_mapping(t_address,t_struct(Reserve)1790_storage)": {
+          "t_mapping(t_address,t_struct(Reserve)1541_storage)": {
             "label": "mapping(address => struct DataTypes.Reserve)",
             "numberOfBytes": "32"
           },
-          "t_struct(Reserve)1790_storage": {
+          "t_struct(Reserve)1541_storage": {
             "label": "struct DataTypes.Reserve",
             "members": [
               {
