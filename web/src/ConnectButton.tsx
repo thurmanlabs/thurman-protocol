@@ -15,7 +15,7 @@ export default function ConnectButton() {
     onUpdateBalance,
   } = useContext(AccountContext);
 
-  const onClickConnect = (
+  const onClickConnect = async (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
     if (!window.ethereum) {
@@ -25,7 +25,7 @@ export default function ConnectButton() {
     }
 
     const provider = new ethers.providers.Web3Provider(window.ethereum as any);
-    provider
+    await provider
       .send("eth_requestAccounts", [])
       .then((accounts) => {
         if (accounts.length > 0) {
@@ -39,7 +39,7 @@ export default function ConnectButton() {
     <Box>
       {account ? (
         <Typography variant="body1" sx={{color: "black"}}>
-          {account.substring(0,3)}...{account.substring(account.length - 3, account.length)} has a balance: {accountBalance}
+          {account.substring(0,3)}...{account.substring(account.length - 3, account.length)}
         </Typography>
       ) : (
         <Button onClick={onClickConnect}>Connect</Button>

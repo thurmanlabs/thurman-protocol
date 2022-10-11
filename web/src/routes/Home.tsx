@@ -1,10 +1,15 @@
 import React, { useContext } from "react";
 import {
+	Avatar,
 	Box,
 	Button,
+	Container,
+	Grid,
+	Typography,
 } from "@mui/material";
 import { ethers, Contract } from "ethers";
 import { AccountContext } from "../context/AccountContext";
+import DepositButton from "../DepositButton";
 import contract from "../constants/Pool.json";
 import thContract from "../constants/ThToken.json";
 import weth9contract from "../constants/WETH9.json";
@@ -95,15 +100,37 @@ export default function Home() {
 	};
 
 	return (
-		<Box>
-			{account && <Button onClick={onClickDeposit}>Deposit</Button>}
-			{account && (
-			  <Button onClick={onClickGetReserve}>Get Reserve</Button>
-			)}
-			{account && (
-			  <Button onClick={onClickGetUnderlyingAsset}>Get Underlying</Button>
-			)}
-			{account && <Button onClick={onClickWithdraw}>Withdraw</Button>}
-		</Box>
+		<Container maxWidth="lg">
+			<Grid container spacing={2}>
+				<Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
+					<Typography variant="h3">
+						Secured lines of credit for businesses
+					</Typography>
+					<Typography variant="h5">
+						A lending protocol that matches funders with businesses in the missing middle
+					</Typography>
+					<DepositButton />
+					<Button>
+						Subscribe
+					</Button>
+				</Grid>
+				<Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
+					<Avatar variant="square" sx={{width: 400, height: 400, bgcolor: "black"}}>Image</Avatar>
+				</Grid>
+			</Grid>
+		</Container>
 	);
+
+	// return (
+	// 	<Box>
+	// 		{account && <Button onClick={onClickDeposit}>Deposit</Button>}
+	// 		{account && (
+	// 		  <Button onClick={onClickGetReserve}>Get Reserve</Button>
+	// 		)}
+	// 		{account && (
+	// 		  <Button onClick={onClickGetUnderlyingAsset}>Get Underlying</Button>
+	// 		)}
+	// 		{account && <Button onClick={onClickWithdraw}>Withdraw</Button>}
+	// 	</Box>
+	// );
 }
