@@ -12,8 +12,10 @@ import { ethers, BigNumber, Contract } from "ethers";
 
 import { ConnectFirstModalProps } from "./DepositButton";
 import USDCJson from "./constants/USDC-ABI.json";
+import POOLJson from "./constants/Pool.json";
 
-const USDC_ADDRESS_TESTNET = "0x07865c6e87b9f70255377e024ace6630c1eaa37f";
+const USDC_ADDRESS_GOERLI = "0x07865c6e87b9f70255377e024ace6630c1eaa37f";
+const POOL_ADDRESS_GOERLI = "0x35aE0944009Fb8f2498F75970e8c78CF6d3Aa59d";
 const USDC_DECIMALS = 6;
 const DECIMALS = 18;
 
@@ -24,6 +26,18 @@ type DepositModalProps = {
 	handleOpen: () => void;
 	handleClose: () => void;
 };
+
+const styles = {
+	modal: {
+		display: "flex",
+		alignItems: "center", 
+		justifyContent: "center",
+	},
+	paper: {
+    width: 450,
+    padding: "1em 1em 1em 1em",
+	}
+}
 
 export default function DepositModal({
 	account,
@@ -41,7 +55,7 @@ export default function DepositModal({
 		async function fetchUSDCBalance() {
 			const provider = new ethers.providers.Web3Provider(window.ethereum as any);
 			const usdc: Contract = new ethers.Contract(
-				USDC_ADDRESS_TESTNET,
+				USDC_ADDRESS_GOERLI,
 				USDCJson.abi,
 				provider,
 			);
@@ -74,49 +88,57 @@ export default function DepositModal({
 	// STATE AND FUNCTION TO CHECK HOW MUCH HAS BEEN APPROVED BY SIGNER TO AVOID UNECCESSARY APPROVES
 	// PLUS PROMPT USER THAT THEY WILL HAVE TO APPROVE THE AMOUNT BEFORE DEPOSITING	
 
-	const onClickDeposit = async () => {
-		console.log("Clicked Deposit Button");
-	}
-	// const onClickDeposit = async (event: any) => {
-	//   event.preventDefault();
-	//   const provider = new ethers.providers.Web3Provider(window.ethereum as any);
-	//   const signer = await provider.getSigner();
-	//   const pool: Contract = new ethers.Contract(
-	//     POOL_ADDRESS,
-	//     contract.abi,
-	//     signer
-	//   );
+	const onClickDeposit = async (event: any) => {
+	  event.preventDefault();
+	  const provider = new ethers.providers.Web3Provider(window.ethereum as any);
+	  const signer = await provider.getSigner();
+	  console.log();
+	  
+	  const usdc: Contract = new ethers.Contract(
+			USDC_ADDRESS_GOERLI,
+			USDCJson.abi,
+			signer,
+		);
+	  const allowance = await usdc.allowance(account, POOL_ADDRESS_GOERLI).then((num: BigNumber) => ethers.utils.formatEther(num));
+	  console.log("allowance: ", allowance);
+	  const difference = parseFloat(depositValue) - allowance;
+	  console.log("difference: ", difference);
 
-	//   const weth: Contract = new ethers.Contract(
-	//     WETH_ADDRESS,
-	//     weth9contract,
-	//     signer
-	//   );
-	//   await weth.approve(pool.address, ethers.utils.parseEther("0.005"));
-	//   const tx = await pool.deposit(
-	//     WETH_ADDRESS,
-	//     ethers.utils.parseEther("0.001"),
-	//     {
-	//       gasPrice: 6000000,
-	//       gasLimit: 30000000,
-	//     }
-	//   );
-	//   console.log(tx);
-	//   const tr = await tx.wait(1);
-	//   console.log(tr);
-	//   console.log(tx.hash);
-	//   console.log("deposited to the pool!");
-	// };
+	  if (difference > 0) {
+	  	const tx = await usdc.approve(POOL_ADDRESS_GOERLI, ethers.utils.parseEther(difference.toString()));
+	  	tx.wait();
+	  	console.log("just approved because of the difference between allowance and deposit value");
+	  } else {
+	  	console.log("nothing needs to be approved");
+	  }
+
+	  const pool: Contract = new ethers.Contract(
+	    POOL_ADDRESS_GOERLI,
+	    POOLJson.abi,
+	    signer
+	  );
+	  
+	  const tx = await pool.deposit(
+	    USDC_ADDRESS_GOERLI,
+	    ethers.utils.parseUnits(depositValue, 6),
+	  );
+	  console.log(tx);
+	  const tr = await tx.wait(1);
+	  console.log(tr);
+	  console.log(tx.hash);
+	  console.log("deposited to the pool!");
+	  handleClose();
+	};
 
 	return (
 		<div>
 			<Modal
 				open={open}
 				onClose={handleClose}
-				sx={{display: "flex", alignItems: "center", justifyContent: "center"}}
+				sx={styles.modal}
 			>
 				<Box>
-					<Paper elevation={1} sx={{width: 400}}>
+					<Paper elevation={1} sx={styles.paper}>
 						<Grid container spacing={2}>
 							<Grid item xs={12}>
 								<Typography variant="h5">
@@ -133,14 +155,15 @@ export default function DepositModal({
 							<Grid item xs={12}>
 							<TextField
 								id="outlined-basic"
-								label="Outlined"
+								label="USDC"
 								variant="outlined"
+								size="small"
 								value={depositValue}
 								onChange={handleChange}
 							/>
 							</Grid>
 							<Grid item xs={12}>
-								<Button onClick={onClickDeposit} disabled={buttonDisabled}>
+								<Button variant="contained" onClick={onClickDeposit} disabled={buttonDisabled}>
 									Deposit
 								</Button>
 							</Grid>

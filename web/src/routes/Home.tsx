@@ -13,10 +13,26 @@ import DepositButton from "../DepositButton";
 import contract from "../constants/Pool.json";
 import thContract from "../constants/ThToken.json";
 import weth9contract from "../constants/WETH9.json";
+import headlineImg from "../images/thurmanV0HeadlineImg.png";
 
 const POOL_ADDRESS = "0x5FDAb857C869aC4010Fe8539276932744aC2B2aB";
 const TH_TOKEN_ADDRESS = "0x29dAdCC947326E9E2e9add1D0f86CF36c5b9d49D";
 const WETH_ADDRESS = "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6";
+
+const styles = {
+	title: {
+		fontWeight: "bolder",
+	},
+	subscribeButton: {
+		borderColor: "black",
+		color: "black",
+		"&:hover": {
+			backgroundColor: "#525252",
+			color: "white",
+			border: "none",
+		}
+	}
+};
 
 export default function Home() {
 	const { account } = useContext(AccountContext);
@@ -101,21 +117,33 @@ export default function Home() {
 
 	return (
 		<Container maxWidth="lg">
-			<Grid container spacing={2}>
+			<Grid container spacing={5}>
 				<Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
-					<Typography variant="h3">
+					<Typography variant="h2" align="left" sx={styles.title}>
 						Secured lines of credit for businesses
 					</Typography>
-					<Typography variant="h5">
+					<Typography variant="h4" align="left">
 						A lending protocol that matches funders with businesses in the missing middle
 					</Typography>
-					<DepositButton />
-					<Button>
-						Subscribe
-					</Button>
+					<Box 
+						display="flex"
+						justifyContent="flex-start"
+						alignItems="flex-start"
+					>
+						<DepositButton />
+						<Button variant="outlined" sx={styles.subscribeButton}>
+							Subscribe
+						</Button>
+					</Box>
 				</Grid>
 				<Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
-					<Avatar variant="square" sx={{width: 400, height: 400, bgcolor: "black"}}>Image</Avatar>
+					<Box
+						display="flex"
+						justifyContent="center"
+						alignItems="center"
+					>
+					<Avatar variant="square" src={headlineImg} sx={{width: 673, height: 400, marginLeft: "10em"}}>Image</Avatar>
+					</Box>
 				</Grid>
 			</Grid>
 		</Container>

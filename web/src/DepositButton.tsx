@@ -2,6 +2,7 @@ import React, { useContext, useState } from "react";
 import {
 	Box,
 	Button,
+	Divider,
 	Modal,
 	Paper,
 	Typography,
@@ -21,6 +22,28 @@ export type ConnectFirstModalProps = {
 	handleCloseDeposit: () => void;
 	account: string | undefined;
 	onUpdateAccount: (account: string) => void;
+};
+
+const styles = {
+	connectFirstPaper: {
+		width: 450,
+		padding: "1em 1em 1em 1em",
+	},
+	depositButton: {
+		backgroundColor: "black",
+		"&:hover": {
+			backgroundColor: "#525252",
+		},
+	},
+	connectFirstButton: {
+		backgroundColor: "#171717",
+		"&:hover": {
+			backgroundColor: "#525252",
+		},
+	},
+	typography: {
+		margin: "0.75em 0em 0.25em 0em",
+	},
 };
 
 function ConnectFirstModal({
@@ -60,18 +83,28 @@ function ConnectFirstModal({
 
 	return (
 		<div>
-			<Button onClick={handleOpen}>Deposit</Button>
+			<Button
+				variant="contained"
+				sx={styles.depositButton}
+				onClick={handleOpen}
+			>
+				Deposit
+			</Button>
 			<Modal
 				open={open}
 				onClose={handleClose}
 				sx={{display: "flex", alignItems: "center", justifyContent: "center"}}
 			>
 				<Box>
-					<Paper elevation={1} sx={{width: 400}}>
-						<Typography variant="h5">
-							You need to connect to MetaMask before you can deposit funds! If don't have the MetaMask Browser Extension, you'll be redirected to their website. Once you install the extension and add an account, you'll be able to connect to our app!
+					<Paper elevation={1} sx={styles.connectFirstPaper}>
+						<Typography variant="h6" sx={{...styles.typography, fontWeight: "bold"}}>
+							You need to connect to MetaMask before you can deposit funds!
 						</Typography>
-						<Button onClick={onClickConnect}>
+						<Divider />
+						<Typography variant="body2" sx={styles.typography}>
+							If don't have the MetaMask Browser Extension, you'll be redirected to their website. Once you install the extension and add an account, you'll be able to connect to our app!
+						</Typography>
+						<Button variant="contained" sx={styles.connectFirstButton} onClick={onClickConnect}>
 							Connect
 						</Button>
 					</Paper>
@@ -103,7 +136,13 @@ export default function DepositButton() {
 		<Box>
 			{ account ? (
 				<div>
-					<Button onClick={handleOpenDeposit}>Deposit</Button>
+					<Button
+						variant="contained"
+						sx={styles.depositButton}
+						onClick={handleOpenDeposit}
+					>
+						Deposit
+					</Button>
 					<DepositModal
 						account={account}
 						open={openDeposit}
