@@ -64,24 +64,37 @@ export default function ConnectButton() {
   const open = Boolean(anchorEl);
   const id = open ? "simple-popper" : undefined;
 
+  const handleEthereum = async () => {
+    const { ethereum } = window;
+    if (ethereum && ethereum.isMetaMask) {
+      const provider = new ethers.providers.Web3Provider(window.ethereum as any);
+      await provider
+        .send("eth_requestAccounts", [])
+        .then((accounts) => {
+          if (accounts.length > 0) {
+            onUpdateAccount(accounts[0]);
+          }
+        })
+        .catch((e) => console.log(e));
+      } else {
+        alert("You need to install MetaMask to connect a wallet");
+        window.open("https://metamask.io/", "_blank");
+        return;
+      }
+  }
+
   const onClickConnect = async (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
-    if (!window.ethereum) {
-      alert("You need to install MetaMask to connect a wallet");
-      window.open("https://metamask.io/", "_blank");
-      return;
+    if (window.ethereum) {
+      await handleEthereum();
+    } else {
+      window.addEventListener("ethereum#initialized", handleEthereum, {
+        once: true,
+      });
     }
 
-    const provider = new ethers.providers.Web3Provider(window.ethereum as any);
-    await provider
-      .send("eth_requestAccounts", [])
-      .then((accounts) => {
-        if (accounts.length > 0) {
-          onUpdateAccount(accounts[0]);
-        }
-      })
-      .catch((e) => console.log(e));
+    setTimeout(handleEthereum, 3000);
   };
 
   return (
