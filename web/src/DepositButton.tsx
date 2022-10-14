@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
 	Box,
 	Button,
@@ -21,6 +21,7 @@ export type ConnectFirstModalProps = {
 	handleOpenDeposit: () => void;
 	handleCloseDeposit: () => void;
 	account: string | undefined;
+	chainId: string | undefined;
 	onUpdateAccount: (account: string) => void;
 };
 
@@ -56,10 +57,11 @@ function ConnectFirstModal({
 	handleOpenDeposit,
 	handleCloseDeposit,
 	account,
+	chainId,
 	onUpdateAccount,
 }: ConnectFirstModalProps) {
 
-	const onClickConnect = (
+	const onClickConnect = async (
 	  event: React.MouseEvent<HTMLButtonElement, MouseEvent>
 	) => {
 	  if (!window.ethereum) {
@@ -69,13 +71,12 @@ function ConnectFirstModal({
 	  }
 
 	  const provider = new ethers.providers.Web3Provider(window.ethereum as any);
-	  provider
+	  await provider
 	    .send("eth_requestAccounts", [])
 	    .then((accounts) => {
 	      if (accounts.length > 0) {
 	        onUpdateAccount(accounts[0]);
 	        handleClose();
-	        handleOpenDeposit();
 	      }
 	    })
 	    .catch((e) => console.log(e));
@@ -110,13 +111,16 @@ function ConnectFirstModal({
 					</Paper>
 				</Box>
 			</Modal>
-			<DepositModal
+			<Box>
+			{openDeposit && <DepositModal
 				account={account}
+				chainId={chainId}
 				open={openDeposit}
 				setOpen={setOpenDeposit}
 				handleOpen={handleOpenDeposit}
 				handleClose={handleCloseDeposit}
-			/>
+			/>}
+			</Box>
 		</div>
 	);
 }
@@ -129,12 +133,11 @@ export default function DepositButton() {
 	const handleOpenDeposit = () => setOpenDeposit(true);
 	const handleCloseDeposit = () => setOpenDeposit(false);
 
-	const { account, onUpdateAccount } = useContext(AccountContext);
-	
+	const { account, chainId, onUpdateAccount } = useContext(AccountContext);
 
 	return (
 		<Box>
-			{ account ? (
+			{ account && chainId ? (
 				<div>
 					<Button
 						variant="contained"
@@ -145,6 +148,7 @@ export default function DepositButton() {
 					</Button>
 					<DepositModal
 						account={account}
+						chainId={chainId}
 						open={openDeposit}
 						setOpen={setOpenDeposit}
 						handleOpen={handleOpenDeposit}
@@ -162,6 +166,7 @@ export default function DepositButton() {
 					handleOpenDeposit={handleOpenDeposit}
 					handleCloseDeposit={handleCloseDeposit}
 					account={account}
+					chainId={chainId}
 					onUpdateAccount={onUpdateAccount}
 				/>
 			}

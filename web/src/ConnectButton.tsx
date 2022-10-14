@@ -1,19 +1,25 @@
 import React, { useContext, useState } from "react";
 import {
+  Avatar,
   Box,
   Button,
   Divider,
+  Link,
   Paper,
   Popper,
+  Stack,
   Typography,
 } from "@mui/material";
 import {
   KeyboardArrowDown,
   KeyboardArrowUp,
+  Launch,
 } from "@mui/icons-material";
 import { ethers } from "ethers";
 import { AccountContext } from "./context/AccountContext";
 import { chainMap } from "./constants/constants";
+import metamaskIcon from "./images/metamask-icon.png";
+import ethIcon from "./images/eth.png";
 
 const styles = {
   connectButton: {
@@ -22,8 +28,22 @@ const styles = {
   popperPaper: {
     padding: "0.75em 1.5em 1.5em 1.5em",
   },
+  stack: {
+    margin: "0.75em 0 0.75em 0",
+  },
   typography: {
     margin: "0.75em 0 0.75em 0",
+  },
+  metamask: {
+    width: "1.15em",
+    height: "1.15em",
+  },
+  ethIcon: {
+    width: "0.75em",
+    height: "0.75em",
+  },
+  etherscan: {
+    color: "black",
   },
 };
 
@@ -37,6 +57,7 @@ export default function ConnectButton() {
   } = useContext(AccountContext);
 
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const networkChainId = !chainId ? "0x1" : chainId;
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(anchorEl ? null : event.currentTarget);
@@ -74,19 +95,20 @@ export default function ConnectButton() {
           disableRipple={true}
           sx={styles.connectButton} 
           onClick={handleClick}
+          startIcon={<Avatar src={metamaskIcon} sx={styles.metamask} />}
           endIcon={open ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
         >
           {account.substring(0,4)}...{account.substring(account.length - 4, account.length)}
         </Button>
         <Popper id={id} open={open} anchorEl={anchorEl}>
-          <Paper variant="outlined" elevation={5} sx={styles.popperPaper}>
+          <Paper variant="outlined" sx={styles.popperPaper}>
             {chainId && (
               <Box>
                 <Typography variant="body2" sx={{...styles.typography, fontWeight: "bold"}}>
                   Network
                 </Typography>
                 <Typography variant="body2" sx={styles.typography}>
-                  {chainMap[chainId]}
+                  {chainMap[networkChainId].name}
                 </Typography>
                 <Divider />
               </Box>
@@ -94,18 +116,41 @@ export default function ConnectButton() {
           }
           {accountBalance && (
             <Box>
-              <Typography variant="body2" sx={styles.typography}>
-                ETH Balance: {parseFloat(accountBalance).toFixed(3)}
-              </Typography>
+              <Stack direction="row" spacing={1} alignItems="center" sx={styles.stack}>
+                <Avatar src={ethIcon} sx={styles.ethIcon} />
+                <Typography variant="body2">
+                  ETH Balance: {parseFloat(accountBalance).toFixed(3)}
+                </Typography>
+              </Stack>
               <Divider />
             </Box>
             )
           }
+          {account && (
+            <Box display="flex" flexDirection="row">
+              <Typography variant="body2" sx={{...styles.typography, fontWeight: "bold"}}>
+              <Link
+                href={`${chainMap[networkChainId].etherscanUrl}/address/${account}`}
+                target="_blank"
+                sx={styles.etherscan}
+              >
+                Etherscan
+              </Link>
+              </Typography>
+            </Box>
+          )}
           </Paper>
         </Popper>
         </Box>
       ) : (
-        <Button variant="contained" sx={styles.connectButton} onClick={onClickConnect}>Connect Wallet</Button>
+        <Button 
+          variant="contained"
+          startIcon={<Avatar src={metamaskIcon} sx={styles.metamask} />}
+          sx={styles.connectButton}
+          onClick={onClickConnect}
+        >
+          Connect Wallet
+        </Button>
       )}
     </Box>
   );
