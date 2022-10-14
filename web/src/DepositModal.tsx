@@ -13,8 +13,6 @@ import {
 	Typography
 } from "@mui/material";
 import { ethers, BigNumber, Contract } from "ethers";
-
-import { ConnectFirstModalProps } from "./DepositButton";
 import { 
 	chainMap,
 	DECIMALS, 
@@ -108,15 +106,15 @@ export default function DepositModal({
 			
 		}
 		fetchUSDCBalance();
-	}, [chainId])
+	}, [account, networkChainId])
 
 	useEffect(() => {
 		function handleButtonAccess() {
 			if (
 				((usdcBalance && parseFloat(depositValue) > usdcBalance) 
 					|| !VALID_NUMBER_REGEX.test(depositValue) 
-					|| depositValue == "" 
-					|| depositValue == ".") 
+					|| depositValue === "" 
+					|| depositValue === ".") 
 				) {
 				setButtonDisabled(true);
 			} else {
@@ -124,7 +122,7 @@ export default function DepositModal({
 			}
 		}
 		handleButtonAccess();
-	}, [depositValue]);
+	}, [depositValue, usdcBalance]);
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setDepositValue(e.target.value);
@@ -202,7 +200,7 @@ export default function DepositModal({
 		    ethers.utils.parseUnits(depositValue, NetworkContractMap[networkChainId]["USDC"].decimals),
 		  );
 		  console.log(tx);
-		  const tr = await tx.wait(1);
+		  await tx.wait(1);
 		  setTransactionState("success");
 		  setTxHash(tx.hash);
 		  console.log(tx.hash);

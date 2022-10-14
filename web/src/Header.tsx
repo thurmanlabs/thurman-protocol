@@ -1,14 +1,11 @@
-import React, { useContext } from "react";
+import React from "react";
 import {
 	AppBar,
 	Box,
-	Chip,
 	Toolbar,
 	Typography,
 } from "@mui/material";
-import { AccountContext } from "./context/AccountContext";
 import ConnectButton from "./ConnectButton";
-import { chainMap } from "./constants/constants";
 
 const styles = {
 	appBar: {

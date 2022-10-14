@@ -13,7 +13,6 @@ import {
 import {
   KeyboardArrowDown,
   KeyboardArrowUp,
-  Launch,
 } from "@mui/icons-material";
 import { ethers } from "ethers";
 import { AccountContext } from "./context/AccountContext";
@@ -53,7 +52,6 @@ export default function ConnectButton() {
     chainId,
     accountBalance,
     onUpdateAccount,
-    onUpdateBalance,
   } = useContext(AccountContext);
 
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
