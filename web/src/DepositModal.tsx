@@ -26,7 +26,6 @@ type DepositModalProps = {
 	account: string | undefined;
 	chainId: string | undefined
 	open: boolean;
-	setOpen: (open: boolean) => void;
 	handleOpen: () => void;
 	handleClose: () => void;
 };
@@ -76,7 +75,6 @@ export default function DepositModal({
 	account,
 	chainId,
 	open,
-	setOpen,
 	handleOpen,
 	handleClose,
 }: DepositModalProps) {
@@ -163,9 +161,6 @@ export default function DepositModal({
 		}
 
 	}
-
-	// STATE AND FUNCTION TO CHECK HOW MUCH HAS BEEN APPROVED BY SIGNER TO AVOID UNECCESSARY APPROVES
-	// PLUS PROMPT USER THAT THEY WILL HAVE TO APPROVE THE AMOUNT BEFORE DEPOSITING	
 
 	const onClickDeposit = async (event: any) => {
 	  event.preventDefault();

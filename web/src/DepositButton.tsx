@@ -13,15 +13,8 @@ import DepositModal from "./DepositModal";
 
 export type ConnectFirstModalProps = {
 	open: boolean;
-	setOpen: (open: boolean) => void;
-	openDeposit: boolean;
-	setOpenDeposit: (open: boolean) => void;
 	handleOpen: () => void;
 	handleClose: () => void;
-	handleOpenDeposit: () => void;
-	handleCloseDeposit: () => void;
-	account: string | undefined;
-	chainId: string | undefined;
 	onUpdateAccount: (account: string) => void;
 };
 
@@ -49,15 +42,8 @@ const styles = {
 
 function ConnectFirstModal({
 	open,
-	setOpen,
 	handleOpen,
 	handleClose,
-	openDeposit,
-	setOpenDeposit,
-	handleOpenDeposit,
-	handleCloseDeposit,
-	account,
-	chainId,
 	onUpdateAccount,
 }: ConnectFirstModalProps) {
 
@@ -111,16 +97,6 @@ function ConnectFirstModal({
 					</Paper>
 				</Box>
 			</Modal>
-			<Box>
-			{openDeposit && <DepositModal
-				account={account}
-				chainId={chainId}
-				open={openDeposit}
-				setOpen={setOpenDeposit}
-				handleOpen={handleOpenDeposit}
-				handleClose={handleCloseDeposit}
-			/>}
-			</Box>
 		</div>
 	);
 }
@@ -150,7 +126,6 @@ export default function DepositButton() {
 						account={account}
 						chainId={chainId}
 						open={openDeposit}
-						setOpen={setOpenDeposit}
 						handleOpen={handleOpenDeposit}
 						handleClose={handleCloseDeposit}
 					/>
@@ -158,15 +133,8 @@ export default function DepositButton() {
 				) :
 				<ConnectFirstModal
 					open={open}
-					setOpen={setOpen}
 					handleOpen={handleOpen}
 					handleClose={handleClose}
-					openDeposit={openDeposit}
-					setOpenDeposit={setOpenDeposit}
-					handleOpenDeposit={handleOpenDeposit}
-					handleCloseDeposit={handleCloseDeposit}
-					account={account}
-					chainId={chainId}
 					onUpdateAccount={onUpdateAccount}
 				/>
 			}
