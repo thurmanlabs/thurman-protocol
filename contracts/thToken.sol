@@ -10,6 +10,7 @@ error CALLER_IS_NOT_POOL_ADMIN();
 
 contract ThToken is ERC20Upgradeable, IThToken {
 	address internal _underlyingAsset;
+	uint8 private _decimals;
 	IPool public POOL;
 
 	modifier onlyPool() {
@@ -19,18 +20,18 @@ contract ThToken is ERC20Upgradeable, IThToken {
 		_;
 	}
 
-	event Initialized(address indexed underlyingAsset, address indexed pool);
-
 	function initialize(
 		IPool pool,
 		string memory name,
 		string memory symbol,
-		address underlyingAsset
+		address underlyingAsset,
+		uint8 thTokenDecimals
 		) external initializer {
 		__ERC20_init(name, symbol);
 		POOL = pool;
 		_underlyingAsset = underlyingAsset;
-		emit Initialized(underlyingAsset, address(POOL));
+		_setDecimals(thTokenDecimals);
+		emit Initialized(underlyingAsset, address(POOL), thTokenDecimals);
 	}
 
 	function mint(address _account, uint256 _amount) external onlyPool {
@@ -43,6 +44,15 @@ contract ThToken is ERC20Upgradeable, IThToken {
 			IERC20Upgradeable(_underlyingAsset).transfer(_account, _amount);
 		}
 	}
+
+	function _setDecimals(uint8 newDecimals) internal {
+	  _decimals = newDecimals;
+	}
+
+	function decimals() public view override returns (uint8) {
+	  return _decimals;
+	}
+
 
 	function getUnderlyingAsset() public view returns(address) { return _underlyingAsset; }
 }

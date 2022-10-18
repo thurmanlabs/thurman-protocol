@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { createTheme, responsiveFontSizes, ThemeProvider } from "@mui/material/styles";
 import { ethers } from "ethers";
 import {
   BrowserRouter,
@@ -11,7 +11,7 @@ import { AccountContext } from "./context/AccountContext";
 import Header from "./Header";
 import Home from "./routes/Home";
 
-const theme = createTheme({
+let theme = createTheme({
   typography: {
     fontFamily: [
       "Space Grotesk", 
@@ -31,7 +31,9 @@ const theme = createTheme({
       },
     },
   },
-})
+});
+
+theme = responsiveFontSizes(theme);
 
 function App() {
   const [currentAccount, setCurrentAccount] = useState<string | undefined>();

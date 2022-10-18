@@ -59,7 +59,12 @@ const styles = {
 		justifyContent: "center",
 	},
 	paper: {
-    width: 450,
+    position: "absolute",
+    maxWidth: 450,
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: "50%",
     padding: "1em 1em 1em 1em",
 	},
 	typography: {
@@ -80,6 +85,7 @@ export default function DepositModal({
 }: DepositModalProps) {
 	
 	const [usdcBalance, setUsdcBalance] = useState<number | undefined>();
+	const [currentPoolAllowance, setCurrentPoolAllowance] = useState<number | undefined>();
 	const [depositValue, setDepositValue] = useState<string>("");
 	const [buttonDisabled, setButtonDisabled] = useState<boolean>(true);
 	const [errors, setErrors] = useState<ITextFieldError>(TextFieldErrors);
@@ -95,11 +101,19 @@ export default function DepositModal({
 				NetworkContractMap[networkChainId]["USDC"].abi,
 				provider,
 			);
-			const usdcBalance = await usdc.balanceOf(account).then((num: BigNumber) => ethers.utils.formatEther(num));
+			const usdcBalance = await usdc.balanceOf(account).then((num: BigNumber) => ethers.utils.formatUnits(num, USDC_DECIMALS));
+			const allowance = await usdc.allowance(account, NetworkContractMap[networkChainId]["POOL"].address).then((num: BigNumber) => ethers.utils.formatUnits(num, DECIMALS));
+			
 			if (usdcBalance) {
-				setUsdcBalance(usdcBalance * 10 ** (DECIMALS - USDC_DECIMALS));
+				setUsdcBalance(usdcBalance);
 			} else {
 				setUsdcBalance(0);
+			}
+
+			if (allowance) {
+				setCurrentPoolAllowance(allowance);
+			} else {
+				setCurrentPoolAllowance(0);
 			}
 			
 		}
@@ -229,9 +243,12 @@ export default function DepositModal({
 									<Stack direction="row" alignItems="center" spacing={1}>
 										<Avatar src={usdcIcon} sx={styles.usdc} />
 										<Typography variant="body1">
-										Current USDC Balance: {usdcBalance.toFixed(2)}
+										Current USDC Balance: {usdcBalance}
 										</Typography>
 									</Stack>
+									<Typography variant="body1">
+										Current Pool USDC Allowance: {currentPoolAllowance}
+									</Typography>
 								</Grid>
 							)}
 							<Grid item xs={12}>

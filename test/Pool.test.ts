@@ -4,6 +4,7 @@ import { assert, expect } from "chai";
 import { network, deployments, ethers, upgrades } from "hardhat";
 
 const WETH_ADDRESS = "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6";
+const WETH_DECIMALS = 18;
 
 describe("Pool", function() {
   let accounts: SignerWithAddress[];
@@ -24,23 +25,41 @@ describe("Pool", function() {
       "WETH_thToken",
       "WETH_THT",
       weth.address,
+      WETH_DECIMALS,
     ]);
     await thToken.deployed();
     await weth.deposit({ value: parseEther("0.2") });
   });
 
   describe("thToken initializer", () => {
+
+    it("emits an Initialized event", async () => {
+      const ThToken = await ethers.getContractFactory("ThToken");
+      expect( await upgrades.deployProxy(ThToken, [
+        pool.address,
+        "WETH_thToken",
+        "WETH_THT",
+        weth.address,
+        WETH_DECIMALS,
+      ]))
+      .to.emit(thToken, "Initialized")
+      .withArgs(weth.address, pool.address, WETH_DECIMALS);
+    })
+
     it("initializes the token correctly", async () => {
       const name = await thToken.name();
       const symbol = await thToken.symbol();
       const underlyingAddress = await thToken.getUnderlyingAsset();
+      const decimals = await thToken.decimals();
       expect(name).to.equal("WETH_thToken");
       expect(symbol).to.equal("WETH_THT");
       expect(underlyingAddress).to.equal(weth.address);
+      expect(decimals).to.equal(WETH_DECIMALS);
     });
   });
 
   describe("initialize reserve", () => {
+
     it("initialized a reserve correctly", async () => {
       await pool.initReserve(weth.address, thToken.address);
       let reserve: DataTypes.ReserveStruct = await pool.getReserve(
@@ -85,7 +104,7 @@ describe("Pool", function() {
       ).to.be.revertedWithCustomError(pool, "INVALID_AMOUNT");
     });
 
-    it("should mint thTokens upon deposit", async () => {
+    it("should mint an equivalent amount of thTokens upon deposit", async () => {
       await pool.initReserve(weth.address, thToken.address);
       console.log(
         `WETH balance of accounts[0] before deposit: `,
@@ -100,6 +119,15 @@ describe("Pool", function() {
   });
 
   describe("withdraw", () => {
+    it("should emit deposit event", async () => {
+      await pool.initReserve(weth.address, thToken.address);
+      await weth.approve(pool.address, parseEther("0.5"));
+      await pool.deposit(weth.address, parseEther("0.2"));
+      await expect(pool.withdraw(weth.address, parseEther("0.1")))
+        .to.emit(pool, "Withdraw")
+        .withArgs(weth.address, accounts[0].address, parseEther("0.1"));
+    });
+
     it("should revert when amount 0 is sent by message sender", async () => {
       await pool.initReserve(weth.address, thToken.address);
       await weth.approve(pool.address, parseEther("0.5"));

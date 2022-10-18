@@ -17,6 +17,10 @@ const styles = {
 		justifyContent: "center",
 		alignItems: "center",
 	},
+	img: {
+		width: "100%",
+		height: "100%",
+	},
 	title: {
 		fontWeight: "bolder",
 	},
@@ -30,6 +34,7 @@ const styles = {
 		}
 	}
 };
+// {width: 673, height: 400, marginLeft: "10em"}
 
 export default function Home() {
 
@@ -60,7 +65,7 @@ export default function Home() {
 						justifyContent="center"
 						alignItems="center"
 					>
-					<Avatar variant="square" src={headlineImg} sx={{width: 673, height: 400, marginLeft: "10em"}} />
+					<Avatar variant="square" src={headlineImg} sx={styles.img} />
 					</Box>
 				</Grid>
 			</Grid>

@@ -5,10 +5,10 @@ import { parseEther } from "ethers/lib/utils";
 import { verify } from "../utils/verify";
 import { upgrades } from "hardhat";
 import usdcGoerli from "../abi/usdc-abi.json";
-// import weth9Goerli from "../abi/weth9-abi.json";
 
-// const WETH_ADDRESS = "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6";
 const USDC_ADDRESS = "0x07865c6E87B9F70255377e024ace6630C1Eaa37F";
+const WETH_DECIMALS = 18;
+const USDC_DECIMALS = 6;
 const developmentChains = ["hardhat", "localhost"];
 
 const deployPool: DeployFunction = async function(
@@ -42,6 +42,7 @@ const deployPool: DeployFunction = async function(
       "WETH_thToken",
       "WETH_THT",
       wethAddress,
+      WETH_DECIMALS,
     ]);
 
     await thToken.deployTransaction.wait(1);
@@ -65,6 +66,7 @@ const deployPool: DeployFunction = async function(
       "USDC_thToken",
       "USDC_THT",
       usdc.address,
+      USDC_DECIMALS,
     ]);
     await thToken.deployTransaction.wait(1);
     const pUsdcTx = await pool.initReserve(usdc.address, thToken.address);

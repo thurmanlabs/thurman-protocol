@@ -4,6 +4,8 @@ pragma solidity ^0.8.8;
 import {DataTypes} from "./libraries/DataTypes.sol";
 
 interface IPool {
+	event Deposit(address indexed reserve, address user, uint256 amount);
+	event Withdraw(address indexed reserve, address user, uint256 amount);
 
 	function initReserve(
 		address underlyingAsset,
