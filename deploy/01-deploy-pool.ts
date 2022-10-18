@@ -1,12 +1,14 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { DeployFunction } from "hardhat-deploy/types";
-import { parseEther } from "ethers/lib/utils";
+import { parseEther, parseUnits } from "ethers/lib/utils";
 import { verify } from "../utils/verify";
 import { upgrades } from "hardhat";
 import usdcGoerli from "../abi/usdc-abi.json";
+import usdcMainnet from "../abi/usdc-mainnet-abi.json";
 
-const USDC_ADDRESS = "0x07865c6E87B9F70255377e024ace6630C1Eaa37F";
+const USDC_ADDRESS_GOERLI = "0x07865c6E87B9F70255377e024ace6630C1Eaa37F";
+const USDC_ADDRESS_MAINNET = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
 const WETH_DECIMALS = 18;
 const USDC_DECIMALS = 6;
 const developmentChains = ["hardhat", "localhost"];
@@ -21,6 +23,8 @@ const deployPool: DeployFunction = async function(
   console.log("deployer address: ", deployer.address);
   const chainId: number = network.config.chainId!;
   let wethAddress: string;
+  let usdcAddress: string;
+  let usdcAbi: any;
   let weth: WETH9;
   let thToken: ThToken;
 
@@ -28,7 +32,7 @@ const deployPool: DeployFunction = async function(
   log("Deploying Pool...");
 
   const Pool = await ethers.getContractFactory("Pool");
-  let pool: Pool = await upgrades.deployProxy(Pool, []);
+  let pool: Pool = await upgrades.deployProxy(Pool, [], {gasPrice: parseUnits("28", "gwei")});
   await pool.deployTransaction.wait(1);
   const ThToken = await ethers.getContractFactory("ThToken");
 
@@ -55,9 +59,20 @@ const deployPool: DeployFunction = async function(
     console.log(`accounts[0] weth balance: `, await weth.balanceOf(deployer.address));
   } else {
     console.log("Creating a new instance of USDC contract with deployer");
+
+    if (network.name === "mainnet") {
+      usdcAddress = USDC_ADDRESS_MAINNET;
+      usdcAbi = usdcMainnet.abi;
+      console.log("mainnet config address + abi");
+    } else {
+      usdcAddress = USDC_ADDRESS_GOERLI;
+      usdcAbi = usdcGoerli.abi;
+      console.log("goerli config address + abi")
+    }
+
     const usdc = await new ethers.Contract(
-      USDC_ADDRESS,
-      usdcGoerli.abi,
+      usdcAddress,
+      usdcAbi,
       deployer
     );
     console.log("USDC Total Supply: ", await usdc.totalSupply());
@@ -67,7 +82,7 @@ const deployPool: DeployFunction = async function(
       "USDC_THT",
       usdc.address,
       USDC_DECIMALS,
-    ]);
+    ], {gasPrice: parseUnits("28", "gwei")});
     await thToken.deployTransaction.wait(1);
     const pUsdcTx = await pool.initReserve(usdc.address, thToken.address);
     await pUsdcTx.wait();

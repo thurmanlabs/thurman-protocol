@@ -22,3 +22,5 @@ cache
 artifacts
 .openzeppelin
 abi
+gas-report.txt
+.DS_Store

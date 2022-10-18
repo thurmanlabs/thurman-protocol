@@ -50,7 +50,7 @@ let TextFieldErrors: ITextFieldError = {
 	}
 }
 
-const VALID_NUMBER_REGEX = /^\d?(\.\d{0,24})?$/;
+const VALID_NUMBER_REGEX = /^\d{0,24}?(\.\d{0,24})?$/;
 
 const styles = {
 	modal: {
@@ -195,7 +195,7 @@ export default function DepositModal({
 
 		  if (difference > 0) {
 		  	const tx = await usdc.approve(NetworkContractMap[networkChainId]["POOL"].address, ethers.utils.parseEther(difference.toString()));
-		  	tx.wait();
+		  	await tx.wait();
 		  }
 
 		  const pool: Contract = new ethers.Contract(
