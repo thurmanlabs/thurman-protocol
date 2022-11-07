@@ -1,13 +1,22 @@
-# Sample Hardhat Project
+# Thurman Protocol
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.
+### Getting set up on Goerli testnet
 
-Try running some of the following tasks:
+### 1. Installing MetaMask
+MetaMask is a popular crypto wallet that allows you to connect to and create transactions on blockchain apps. The crypto wallet most often is used as a browser extension, but also can be used on mobile using their app. Thurman uses MetaMask to connect and transact with the Ethereum Network, so you'll need to install it before you can interact with the app. You can download their browser extension on the company [website](https://metamask.io/).
 
-```shell
-npx hardhat help
-npx hardhat test
-GAS_REPORT=true npx hardhat test
-npx hardhat node
-npx hardhat run scripts/deploy.ts
-```
+#### 2. Create an account
+If you've never created a MetaMask wallet, you'll have the option to create a new wallet and a new Secret Recovery Phrase. If you choose this option, you'll be prompted to create a password, which will allow you to connect to your wallet. Your Secret Recovery Phrase (SRP) is a unique 12-word phrase that is generated when you first set up MetaMask. Your funds are connected to that phrase. If you ever lose your password, your SRP allows you to recover your wallet and your funds. Write it down on paper and hide it somewhere, put it in a safety deposit box, or use a secure password manager. Once you go through the onboarding process and safely store your SRP, you'll see that you now have an account that should look something like this `0x75d20607255A5aD40AbA89A47eb33F977A17250D`.
+
+#### 3. Getting Test ETH from a faucet
+Now that you have an account, you need some money for it. On the real Ethereum Network (Mainnet), you can purchase cryptocurrencies using one of the many platforms like Coinbase, MoonPay, Wyre, etc. When you're interacting with the Ethereum Test Network (Goerli), you're dealing with fake or test cryptocurrencies. "Faucets" are tools that allow us to get the test network versions of cryptocurrencies. The easiest way to get some Goerli ETH is by going to the Goerli Faucet powered by Alchemy. Here's the [site](https://goerlifaucet.com/). The faucet requires you to set up a free account to reduce spam. Set up a free account and then copy and paste your account info. You can follow your transaction via Etherscan on the Goerli Network until it's a success. Here's an example of a [successful transaction](https://goerli.etherscan.io/tx/0xda8a152de2bd0e482c02bf7d55ceba05ae64f8790aaeadcbb57db694923aea47) from the Goerli Faucet. In order to see your new funds, you'll have to switch networks on your MetaMask wallet. Click on the dropdown, which should currently say Ethereum Mainnet. Click the link to "Show/Hide test networks". You want to show test networks. Made sure to change this setting to "On". Once this setting is turned on, you should now see test networks in your dropdown. Change your network to "Goerli test network". You should see your 0.05 Goerli ETH. These funds will be used for paying for your transactions.
+
+#### 4. Getting Test USDC from a faucet
+Now that you've gotten some Goerli ETH, you need some Test USDC. USDC is a popular cryptocurrency that is pegged to the value of the US dollar. Its price stays very close to the value of USD, which makes it a great candidate for interacting with a financial platform like Thurman. Here's the [USDC Test Faucet Link](https://usdcfaucet.com/). In order to get access to your funds, you'll have to create a post on Twitter and copy the tweet link. Once the transfer of Test USDC is successful, you'll likely have to import that token into your wallet, since it will not automatically display on MetaMask. The contract address for USDC on the Goerli test network is `0x07865c6E87B9F70255377e024ace6630C1Eaa37F`. Once you finish importing your token, you should see 1000 USDC in your MetaMask wallet.
+
+#### 5. Depositing Funds onto Thurman
+##### I. Connect your wallet to the Thurman app
+In the top right corner, you'll see the option to connect your wallet. A popup notificationo will allow you to connect your account to the wallet.
+
+##### II. Deposit funds
+When you click on the deposit button, you'll see your USDC Balance, which should be 1000. Use the form to deposit funds. Let's use 5 USDC in this example. Since we have not interacted with application before, we need to give it access to deposit funds on our behalf. A notification will pop up to grant access to your USDC. Press confirm, if you'd like our application to have permission to access your funds. Once your funds have been approved, another popup will allow you to actual deposit them. If everything looks good, press confirm. The transaction will take some seconds to go through, but once a transaction confirmation occurs, you'll see a link to look at the transaction. Click on the link and you'll now see that you have received 5 USDC_thToken! Congratulations!
