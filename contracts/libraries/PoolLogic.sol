@@ -24,4 +24,19 @@ library PoolLogic {
 		reserves[underlyingAsset].id = uint16(reservesList.length - 1);		
 		return true;
 	}
+
+	function initGroup(
+		mapping(address => DataTypes.Group) storage groups,
+		address group,
+		DataTypes.Group memory params
+	) internal returns (bool) { 
+		groups[group].name = params.name;
+		groups[group].active = params.active;
+		groups[group].paused = params.paused;
+		groups[group].borrowingEnabled = params.borrowingEnabled;
+		groups[group].totalBorrowingCap = params.totalBorrowingCap;
+		groups[group].totalBalanceRemaining = params.totalBalanceRemaining;
+		groups[group].delinquencyRate = params.delinquencyRate;
+		return true;
+	}
 }

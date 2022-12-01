@@ -113,13 +113,13 @@ export default function ConnectButton() {
         </Button>
         <Popper id={id} open={open} anchorEl={anchorEl}>
           <Paper variant="outlined" sx={styles.popperPaper}>
-            {chainId && (
+            {networkChainId && (
               <Box>
                 <Typography variant="body2" sx={{...styles.typography, fontWeight: "bold"}}>
                   Network
                 </Typography>
                 <Typography variant="body2" sx={styles.typography}>
-                  {chainMap[networkChainId].name}
+                  {chainMap[networkChainId]?.name}
                 </Typography>
                 <Divider />
               </Box>
@@ -141,7 +141,7 @@ export default function ConnectButton() {
             <Box display="flex" flexDirection="row">
               <Typography variant="body2" sx={{...styles.typography, fontWeight: "bold"}}>
               <Link
-                href={`${chainMap[networkChainId].etherscanUrl}/address/${account}`}
+                href={`${chainMap[networkChainId]?.etherscanUrl}/address/${account}`}
                 target="_blank"
                 sx={styles.etherscan}
               >

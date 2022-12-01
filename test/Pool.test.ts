@@ -11,6 +11,7 @@ describe("Pool", function() {
   let pool: Pool;
   let weth: WETH9;
   let thToken: ThToken;
+  let group: Group;
 
   beforeEach(async () => {
     accounts = await ethers.getSigners();
@@ -28,6 +29,9 @@ describe("Pool", function() {
       WETH_DECIMALS,
     ]);
     await thToken.deployed();
+    const Group = await ethers.getContractFactory("Group");
+    group = await Group.deploy();
+    group.initialize(pool.address);
     await weth.deposit({ value: parseEther("0.2") });
   });
 
@@ -81,6 +85,50 @@ describe("Pool", function() {
       ).to.be.revertedWith("Ownable: caller is not the owner");
     });
   });
+
+  describe("initialize group", () => {
+    
+    it("initialized a group", async () => {
+      let testGroup: DataTypes.GroupStruct = {
+        name: "test",
+        active: false,
+        paused: true,
+        borrowingEnabled: false,
+        totalBorrowingCap: parseEther("1.0"),
+        totalBalanceRemaining: parseEther("0.0"),
+        delinquencyRate: ethers.BigNumber.from("0"),
+      };
+      await pool.initGroup(group.address, testGroup)
+      let poolGroup: DataTypes.GroupStructOutput = await pool.getGroup(group.address);
+      expect(poolGroup.name).to.equal(testGroup.name);
+      expect(poolGroup.active).to.equal(testGroup.active);
+      expect(poolGroup.paused).to.equal(testGroup.paused);
+      expect(poolGroup.borrowingEnabled).to.equal(testGroup.borrowingEnabled);
+      expect(poolGroup.totalBorrowingCap).to.equal(testGroup.totalBorrowingCap);
+      expect(poolGroup.totalBalanceRemaining).to.equal(testGroup.totalBalanceRemaining);
+      expect(poolGroup.delinquencyRate).to.equal(testGroup.delinquencyRate);
+    })
+  })
+
+  describe("group member management", () => {
+
+    it("adds a member", async () => {
+      let testGroupMember: DataTypes.GroupMemberStruct = {
+        borrowCap: ethers.BigNumber.from(0),
+        borrowingEnabled: false,
+        balanceRemaining: ethers.BigNumber.from(0),
+        currentLTV: ethers.BigNumber.from(0),
+        delinquent: false,
+      }
+      await pool.addGroupMember(group.address, accounts[0].address, testGroupMember);
+      const member: DataTypes.GroupMemberStruct = await group.getMember(accounts[0].address);
+      expect(member.borrowCap).to.equal(testGroupMember.borrowCap);
+      expect(member.borrowingEnabled).to.equal(testGroupMember.borrowingEnabled);
+      expect(member.balanceRemaining).to.equal(testGroupMember.balanceRemaining);
+      expect(member.currentLTV).to.equal(testGroupMember.currentLTV);
+      expect(member.delinquent).to.equal(testGroupMember.delinquent);
+    })
+  })
 
   describe("deposit", () => {
     it("should emit deposit event", async () => {

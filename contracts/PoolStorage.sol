@@ -6,6 +6,7 @@ import {DataTypes} from "./libraries/DataTypes.sol";
 contract PoolStorage {
 	// maps underlying asset address to reserve struct
 	mapping(address => DataTypes.Reserve) internal _reserves;
+	mapping(address => DataTypes.Group) internal _groups;
 	// addresses of underlying assets
 	address[] internal _reservesList;
 	uint _repayPeriod;

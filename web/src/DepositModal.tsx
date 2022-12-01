@@ -96,6 +96,10 @@ export default function DepositModal({
 	useEffect(() => {
 		async function fetchUSDCBalance() { 
 			const provider = new ethers.providers.Web3Provider(window.ethereum as any);
+			if (!NetworkContractMap[networkChainId]["USDC"]?.address || !NetworkContractMap[networkChainId]["USDC"]?.abi) {
+				setUsdcBalance(undefined);
+				setCurrentPoolAllowance(undefined);
+			}
 			const usdc: Contract = new ethers.Contract(
 				NetworkContractMap[networkChainId]["USDC"].address,
 				NetworkContractMap[networkChainId]["USDC"].abi,
@@ -135,6 +139,15 @@ export default function DepositModal({
 		}
 		handleButtonAccess();
 	}, [depositValue, usdcBalance]);
+
+	useEffect(() => {
+		function checkChainId() {
+			if (!NetworkContractMap[networkChainId]["POOL"]?.address) {
+				setButtonDisabled(true);
+			}
+		}
+		checkChainId();
+	}, [networkChainId])
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setDepositValue(e.target.value);

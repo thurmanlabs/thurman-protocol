@@ -28,8 +28,8 @@ export const DECIMALS = 18;
 
 interface INetworkContractMap {
   [key: string]: {
-    [contract: string]: {
-      address: string;
+    [contract: string]?: {
+      address?: string;
       abi?: any;
       decimals?: number;
     }

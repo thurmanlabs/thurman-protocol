@@ -12,6 +12,10 @@ interface IPool {
 		address thTokenAddress
 	) external returns (bool);
 
+	function initGroup(address group, DataTypes.Group memory params) external returns(bool);
+
+	function removeGroup(address groupAddress) external returns(bool);
+
 	function deposit(
 		address underlyingAsset,
 		uint256 amount
@@ -23,4 +27,6 @@ interface IPool {
 	) external;
 
 	function getReserve(address asset) external view returns(DataTypes.Reserve memory);
+
+	function getGroup(address groupAddress) external view returns(DataTypes.Group memory);
 }

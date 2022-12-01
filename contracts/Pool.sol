@@ -6,6 +6,7 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {DataTypes} from "./libraries/DataTypes.sol";
 import {DepositLogic} from "./libraries/DepositLogic.sol";
+import {GroupLogic} from "./libraries/GroupLogic.sol";
 import {PoolLogic} from "./libraries/PoolLogic.sol";
 import {ReserveLogic} from "./libraries/ReserveLogic.sol";
 import {ThToken} from "./thToken.sol";
@@ -29,6 +30,36 @@ contract Pool is Initializable, OwnableUpgradeable, PoolStorage, IPool {
 		return initialized;
 	}
 
+	function initGroup(
+		address groupAddress,
+		DataTypes.Group memory params
+	) external onlyOwner returns (bool) {
+		bool initialized = PoolLogic.initGroup(_groups, groupAddress, params);
+		return initialized;
+	}
+
+	function removeGroup(address groupAddress) external onlyOwner returns (bool) {
+		delete(_groups[groupAddress]);
+		return true;
+	}
+
+	function addGroupMember(
+		address groupAddress,
+		address newMember,
+		DataTypes.GroupMember memory params
+	) external onlyOwner returns (bool) {
+		bool added = GroupLogic.addMember(groupAddress, newMember, params);
+		return added;
+	}
+
+	function removeGroupMember(
+		address groupAddress,
+		address member
+	) external onlyOwner returns (bool) {
+		bool removed = GroupLogic.removeMember(groupAddress, member);
+		return removed;
+	} 
+
 	function deposit(
 		address underlyingAsset,
 		uint256 amount
@@ -43,7 +74,11 @@ contract Pool is Initializable, OwnableUpgradeable, PoolStorage, IPool {
 		DepositLogic.withdraw(_reserves, underlyingAsset, amount);
 	}
 
-	function getReserve(address asset) external view returns(DataTypes.Reserve memory) {
+	function getReserve(address asset) external view returns (DataTypes.Reserve memory) {
 		return _reserves[asset];
+	}
+
+	function getGroup(address groupAddress) external view returns (DataTypes.Group memory) {
+		return _groups[groupAddress];
 	}
 }
